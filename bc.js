@@ -169,7 +169,7 @@ function exorcist( file, url, root, base ) {
         
         splits = separate(molder, file, root, base, url);
         splits.json = JSON.parse(splits.json);
-        // source = source.replace(molder.comment, "");
+        source = source.replace(molder.comment, "");
         result = UglifyJS.minify(source, { 
             compress    : compress,
             fromString  : true, 
