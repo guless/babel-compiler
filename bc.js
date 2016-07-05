@@ -42,6 +42,7 @@ var yargs    = require("yargs");
 var Molder   = require("mold-source-map");
 var mkdirp   = require("mkdirp");
 var through  = require("through");
+var exorcist = require("exorcist");
 var UglifyJS = require("uglify-js");
 var compiler = require(".");
 var color    = require("cli-color");
@@ -50,13 +51,15 @@ var argv     = yargs
              . usage ("Usage: bc -e <file> [-o \"file\"] [-s]")
              . option("e", { type: "string" , demand: true , describe: "应用程序入口点" })
              . option("o", { type: "string" , demand: false, describe: "编译结果输出位置(默认将编译结果输出至控制台)" })
-             . option("s", { type: "boolean", demand: false, describe: "是否生成 sourcemaps 文件并压缩源文件" })
+             . option("s", { type: "boolean", demand: false, describe: "是否生成 sourcemaps 文件" })
+             . option("m", { type: "boolean", demand: false, describe: "是否生成压缩 JS 文件" })
              . option("q", { type: "boolean", demand: false, describe: "是否启用安静模式" })
              . example("$0 -e main.js", "将编译结果输出至控制台")
              . example("$0 -s -e main.js -o bundle.js", "生成 sourcemaps 文件并压缩源文件")
              . alias("e", "entry"     )
              . alias("o", "output"    )
              . alias("s", "sourcemaps")
+             . alias("m", "minify"    )
              . alias("q", "quiet"     )
              . alias("?", "help"      )
              . help ("?")
@@ -77,18 +80,33 @@ var stream = compiler(argv.entry, { debug: argv.sourcemaps });
 var output = argv.output ? fs.createWriteStream(argv.output) : process.stdout;
 
 if ( argv.sourcemaps ) {
-    /// 提取 sourcemaps 并压缩源代码。
+    /// 获取 sourcemaps 保存路径。
     var mapUrl = "";
     
     if ( argv.output ) {
         mapUrl = path.join(path.dirname(argv.output), path.basename(argv.output) + ".map");
     }
+}
+
+if ( argv.minify ) {
+    /// 生成压缩版的 JS 文件。
+    if ( mapUrl ) {
+        stream.pipe(exorcist2(mapUrl)).pipe(output);
+    }
     
-    stream.pipe(exorcist(mapUrl)).pipe(output);
+    else {
+        stream.pipe(minify()).pipe(output);
+    }
 }
 
 else {
-    stream.pipe(output);
+    if ( mapUrl ) {
+        stream.pipe(exorcist(mapUrl)).pipe(output);
+    }
+    
+    else {
+        stream.pipe(output);
+    }
 }
 
 if ( !argv.quiet ) {
@@ -143,7 +161,7 @@ function separate(src, file, root, base, url) {
  * @param {Boolean=} errorOnMissing when truthy, causes 'error' to be emitted instead of 'missing-map' if no map was found in the stream (default: falsey)
  * @return {TransformStream} transform stream into which to pipe the code containing the source map
  */
-function exorcist( file, url, root, base ) {
+function exorcist2( file, url, root, base ) {
     var chunks = [];
     var source = "";
     var splits = null;
@@ -154,7 +172,7 @@ function exorcist( file, url, root, base ) {
         source = chunks.join("");
         
         if ( !file ) {
-            this.queue(UglifyJS.minify(source, { fromString: true }).code);
+            this.queue(UglifyJS.minify(source, { fromString: true, compress: compress }).code);
             this.queue(null);
             return;
         }
@@ -162,7 +180,7 @@ function exorcist( file, url, root, base ) {
         molder = Molder.fromSource(source);
         
         if ( !molder.sourcemap ) {
-            this.queue(UglifyJS.minify(source, { fromString: true }).code);
+            this.queue(UglifyJS.minify(source, { fromString: true, compress: compress }).code);
             this.queue(null);
             return;
         }
@@ -193,5 +211,17 @@ function exorcist( file, url, root, base ) {
         else {
             fs.writeFile(file, result.map);
         }
+    });
+}
+
+function minify() {
+    var chunks = [];
+    var source = "";
+    
+    return through(function write( data ) {chunks.push(data);}, function done() {
+        source = chunks.join("");
+        
+        this.queue(UglifyJS.minify(source, { fromString: true, compress: compress }).code);
+        this.queue(null);
     });
 }
