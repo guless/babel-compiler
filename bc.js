@@ -48,7 +48,7 @@ var compiler = require(".");
 var color    = require("cli-color");
 var hrtime   = process.hrtime();
 var argv     = yargs
-             . usage ("Usage: bc -e <file> [-o \"file\"] [-s]")
+             . usage ("Usage: bc -e <file> [-o \"file\"] [-s][-m][-q][-?]")
              . option("e", { type: "string" , demand: true , describe: "应用程序入口点" })
              . option("o", { type: "string" , demand: false, describe: "编译结果输出位置(默认将编译结果输出至控制台)" })
              . option("s", { type: "boolean", demand: false, describe: "是否生成 sourcemaps 文件" })

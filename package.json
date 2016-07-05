@@ -1,6 +1,6 @@
 {
   "name": "babel-compiler",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "使用 babel + browserify 来编译你的 ES6 代码。",
   "main": "index.js",
   "scripts": {

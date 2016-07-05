@@ -5,7 +5,7 @@ npm install babel-compiler --save
 
 # 使用方法
 ```
-Usage: bc -e <file> [-o "file"] [-s]
+Usage: bc -e <file> [-o "file"] [-s][-m][-q][-?]
 
 选项：
   -e, --entry       应用程序入口点                               [字符串] [必需]
