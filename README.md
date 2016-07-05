@@ -22,8 +22,8 @@ Usage: bc -e <file> [-o "file"] [-s]
 
 # 使用 package.json 调用 `bc` 命令
 ```json
-/* package.json */
 {
+    ...
     "scripts": {
         "build": "bc -s -e ./src/main.js -o ./dist/main.js
     }
