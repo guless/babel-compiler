@@ -55,7 +55,7 @@ var argv     = yargs
              . option("m", { type: "boolean", demand: false, describe: "是否生成压缩 JS 文件" })
              . option("q", { type: "boolean", demand: false, describe: "是否启用安静模式" })
              . example("$0 -e main.js", "将编译结果输出至控制台")
-             . example("$0 -s -e main.js -o bundle.js", "生成 sourcemaps 文件并压缩源文件")
+             . example("$0 -s -m -e main.js -o bundle.js", "生成 sourcemaps 文件并压缩源文件")
              . alias("e", "entry"     )
              . alias("o", "output"    )
              . alias("s", "sourcemaps")
