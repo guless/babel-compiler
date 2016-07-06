@@ -1,6 +1,6 @@
 # 安装
 ```shell
-npm install babel-compiler --save
+npm install babel-compiler --save-dev
 ```
 
 # 使用方法
