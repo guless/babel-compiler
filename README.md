@@ -16,9 +16,8 @@ Usage: bc -e <file> [-o "file"] [-s][-m][-q][-?]
   -?, --help        显示帮助信息                                          [布尔]
 
 示例：
-  node_modules/.bin/bc -e main.js           将编译结果输出至控制台
-  node_modules/.bin/bc -s -m -e main.js -o  生成 sourcemaps 文件并压缩源文件
-  bundle.js
+  bc.js -e main.js                     将编译结果输出至控制台
+  bc.js -s -m -e main.js -o bundle.js  生成 sourcemaps 文件并压缩源文件
 ```
 
 # 使用 package.json 调用 `bc` 命令
