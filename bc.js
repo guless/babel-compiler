@@ -48,11 +48,12 @@ var compiler = require(".");
 var color    = require("cli-color");
 var hrtime   = process.hrtime();
 var argv     = yargs
-             . usage ("Usage: bc -e <file> [-o \"file\"] [-s][-m][-q][-?]")
+             . usage ("Usage: bc -e <file> [-o \"file\"] [-s][-m][-b][-q][-?]")
              . option("e", { type: "string" , demand: true , describe: "应用程序入口点" })
              . option("o", { type: "string" , demand: false, describe: "编译结果输出位置(默认将编译结果输出至控制台)" })
              . option("s", { type: "boolean", demand: false, describe: "是否生成 sourcemaps 文件" })
              . option("m", { type: "boolean", demand: false, describe: "是否生成压缩 JS 文件" })
+             . option("b", { type: "boolean", demand: false, describe: "是否导出 NodeJS 模块" })
              . option("q", { type: "boolean", demand: false, describe: "是否启用安静模式" })
              . example("$0 -e main.js", "将编译结果输出至控制台")
              . example("$0 -s -m -e main.js -o bundle.js", "生成 sourcemaps 文件并压缩源文件")
@@ -60,6 +61,7 @@ var argv     = yargs
              . alias("o", "output"    )
              . alias("s", "sourcemaps")
              . alias("m", "minify"    )
+             . alias("b", "builtins"  )
              . alias("q", "quiet"     )
              . alias("?", "help"      )
              . help ("?")
@@ -76,7 +78,7 @@ if ( argv.output ) {
     mkdirp(path.dirname(argv.output));
 }
 
-var stream = compiler(argv.entry, { debug: argv.sourcemaps });
+var stream = compiler(argv.entry, { debug: argv.sourcemaps, builtins: argv.builtins });
 var output = argv.output ? fs.createWriteStream(argv.output) : process.stdout;
 
 if ( argv.sourcemaps ) {
