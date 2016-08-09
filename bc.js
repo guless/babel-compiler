@@ -67,18 +67,27 @@ var argv     = yargs
              . help ("?")
              . argv;
              
+var cfgs = require(path.join(process.cwd(), "package.json"))["buildConfig"];
+
 /// UglifyJS:compress 配置参数。
-var compress = {
+var compress = cfgs.compress || {
     drop_debugger: false,
     drop_console : false
 };
+
+/// Browserify: 配置参数。
+var browser = cfgs.browser || {};
+    browser.debug = argv.sourcemaps;
+    
+console.info("compress:", compress);
+console.info("browser :", browser, "\n");
              
 /// 防止输出目录不存在。
 if ( argv.output ) {
-    mkdirp(path.dirname(argv.output));
+    mkdirp.sync(path.dirname(argv.output));
 }
 
-var stream = compiler(argv.entry, { debug: argv.sourcemaps, builtins: argv.builtins });
+var stream = compiler(argv.entry, browser);
 var output = argv.output ? fs.createWriteStream(argv.output) : process.stdout;
 
 if ( argv.sourcemaps ) {
